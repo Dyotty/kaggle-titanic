@@ -6,10 +6,11 @@ from sklearn.preprocessing import StandardScaler
 
 class Preprocessing:
 
-    def __init__(self, data, mode, on_off_list):
+    def __init__(self, data, mode, on_off_list, additional_feature_list):
         self.data = data
         self.mode = mode
         self.on_off_flg = on_off_list
+        self.additional_feature_list = additional_feature_list
 
         # trainとtestでデータ形式が変わる（ラベルがない分）ので調整
         if mode == "train":
@@ -27,6 +28,13 @@ class Preprocessing:
 
         # 特徴データが書かれている列以降のみにする
         self.feature_data = data[1:, self.idx_feature_start:]
+
+    def additional_feature_processing_with_key(self, key):
+        additional_feature_func =\
+            {
+                "fare_for_one_person": self.fare_for_one_person
+            }
+        return additional_feature_func[key]()
 
     # 新規特徴量
     # 1人あたりの料金
@@ -71,8 +79,14 @@ class Preprocessing:
         dst = np.asarray(selected_feature_data, np.float64)
 
         # 新規特徴量を追加
-        fare_for_one_person = self.fare_for_one_person()
-        dst = np.hstack((dst, fare_for_one_person))
+        add_feature_data = np.empty((self.feature_data.shape[0], 1))
+        for k in self.additional_feature_list.keys():
+            if self.additional_feature_list[k]:
+                add_feature = self.additional_feature_processing_with_key(k)
+                add_feature_data = np.hstack((add_feature_data, add_feature))
+        if add_feature_data.shape[1] >= 1:
+            add_feature_data = add_feature_data[:, 1:]
+            dst = np.hstack((dst, add_feature_data))
 
         # 標準化（スケール統一）
         stdsc = StandardScaler()
