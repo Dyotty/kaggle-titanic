@@ -1,0 +1,11 @@
+Parch: True
+Cabin: False
+Embarked: True
+Fare: True
+Pclass: True
+SibSp: True
+Sex: True
+Age: True
+Ticket: False
+Name: False
+fare_for_one_person: True
