@@ -74,21 +74,6 @@ def train(model, train_data, label, save_dir, weights="", additional_epoch=100):
     return model
 
 
-def predict_mlp(test_data, model_path):
-    model = load_model(model_path)
-    result = model.predict(test_data)
-
-    return result
-
-
-def predict_cnn1d(test_data, model_path):
-    test_data = np.reshape(test_data, (-1, test_data.shape[1], 1))
-    model = load_model(model_path)
-    result = model.predict(test_data)
-
-    return result
-
-
 # ----------------------------------------------
 # Some plots
 # ----------------------------------------------
@@ -115,6 +100,7 @@ def plot_history_acc(fit):
     axR.legend(loc='upper right')
 
 
+# 学習設定
 model_lst =\
     [
         mdl.model_construct_mlp_shallow,
@@ -122,8 +108,6 @@ model_lst =\
         mdl.model_construct_mlp_deep_l2,
         mdl.model_construct_cnn1d
     ]
-
-# 学習設定
 on_off_flg =\
         {
             "Pclass": True,
@@ -143,6 +127,8 @@ additional_feature =\
     }
 model_type = "MLP"
 try_name = "MLP_Deep_AdFtr=1"
+model_idx = 1
+
 
 # データ読み込み
 train_data_path = "dataset/train.csv"
@@ -163,7 +149,7 @@ save_dir = "train_log/" + timenow + "_" + try_name
 os.mkdir(save_dir)
 
 # 学習（学習済モデルとモデル構成情報が指定したディレクトリに保存される）
-model = model_lst[1](train_data_selected)
+model = model_lst[model_idx](train_data_selected)
 if model_type == "MLP":
     model = train(model, train_data_selected, label, save_dir)
 elif model_type == "CNN1D":
@@ -198,7 +184,6 @@ with open(save_dir + '/result.csv', 'w') as f:
 # トライ結果ログ保存
 # 設定をtxtファイルに残す
 with open(save_dir + '/used_features.txt', 'w') as f:
-    # writer = csv.writer(f)
     # 選定した特徴一覧
     for key in on_off_flg.keys():
         s = key + ": {}".format(on_off_flg[key]) + "\n"
